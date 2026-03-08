@@ -19,6 +19,7 @@ const sdk = await PolymarketSDK.create({ privateKey: '0x...' });
 | `getMarket(slug\|conditionId)` | `UnifiedMarket` | Market details (price, volume, status) |
 | `getProcessedOrderbook(conditionId)` | `ProcessedOrderbook` | Analyzed orderbook with YES/NO bid/ask/spread |
 | `getTrendingMarkets(limit?)` | `GammaMarket[]` | Hot markets list |
+| `getMarketsByCategory(category, opts?)` | `GammaMarket[]` | Markets by category (politics/crypto/sports/weather etc.) |
 | `getKLines(conditionId, interval)` | `DualKLineData` | K-line data for YES+NO tokens |
 | `getRealtimeSpread(conditionId)` | `RealtimeSpreadAnalysis` | Real-time spread analysis |
 | `getMidpoint(tokenId)` | `number` | Current midpoint price |
@@ -29,7 +30,9 @@ const sdk = await PolymarketSDK.create({ privateKey: '0x...' });
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `searchMarkets({ query })` | `GammaMarket[]` | Search markets by keyword |
+| `getMarkets(params?)` | `GammaMarket[]` | Search/filter markets |
+| `getEvents(params?)` | `GammaEvent[]` | Search/filter events (supports `tagSlug` for category) |
+| `getEventsByCategory(category, opts?)` | `GammaEvent[]` | Events by category tag slug |
 
 ## WalletService (`sdk.wallets`)
 
@@ -88,6 +91,13 @@ type Side = 'BUY' | 'SELL';
 type OrderType = 'GTC' | 'FOK' | 'GTD' | 'FAK';
 type TimePeriod = 'day' | 'week' | 'month' | 'all';
 type KLineInterval = '1s'|'5s'|'15s'|'30s'|'1m'|'5m'|'15m'|'30m'|'1h'|'4h'|'12h'|'1d';
+
+// Event category filtering
+interface EventSearchParams {
+  slug?: string; active?: boolean; limit?: number; offset?: number;
+  order?: string; ascending?: boolean;
+  tagSlug?: string; // "politics"|"crypto"|"sports"|"pop-culture"|"science"|"weather"|"business"|"finance"
+}
 
 interface UnifiedMarket {
   conditionId: string;

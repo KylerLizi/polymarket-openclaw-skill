@@ -30,6 +30,7 @@ Example natural language commands:
 
 **Market Queries (no private key needed):**
 - "Search for Bitcoin prediction markets"
+- "Show me crypto markets" / "Show me politics markets"
 - "Show me the orderbook for condition ID 0x1234..."
 - "Are there any arbitrage opportunities on this market?"
 - "Show trending markets"
@@ -67,6 +68,7 @@ tsx scripts/query-market.ts detail <slug|conditionId>
 tsx scripts/query-market.ts orderbook <conditionId>
 tsx scripts/query-market.ts arb <conditionId> [threshold]
 tsx scripts/query-market.ts trending [limit]
+tsx scripts/query-market.ts category <slug> [limit]
 tsx scripts/query-market.ts klines <conditionId> <interval>
 tsx scripts/query-market.ts spread <conditionId>
 ```
@@ -77,6 +79,7 @@ tsx scripts/query-market.ts spread <conditionId>
 - `orderbook`: conditionId — shows YES/NO bid/ask/spread
 - `arb`: conditionId, threshold (default 0.005) — detect arbitrage
 - `trending`: limit (default 10) — number of trending markets
+- `category`: slug (string) — category tag slug, limit (default 20). Available categories: `politics`, `crypto`, `sports`, `pop-culture`, `science`, `weather`, `business`, `finance`
 - `klines`: conditionId, interval (1s|5s|15s|30s|1m|5m|15m|30m|1h|4h|12h|1d)
 - `spread`: conditionId — realtime spread analysis
 
@@ -158,7 +161,7 @@ Follow this decision tree when handling user requests:
 ```
 User Request
 ├── Query (read-only, no confirmation needed)
-│   ├── Market related → query-market.ts (no private key)
+│   ├── Market related → query-market.ts (no private key, supports category filtering)
 │   ├── Other wallet → query-wallet.ts positions/profile (no private key)
 │   ├── Own balance → query-wallet.ts balance (needs POLY_PRIVATE_KEY)
 │   └── Smart money → analyze-smartmoney.ts (no private key)

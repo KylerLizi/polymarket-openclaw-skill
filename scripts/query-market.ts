@@ -7,6 +7,7 @@
  *   orderbook <conditionId>       加工后的订单簿（YES/NO bid/ask/spread）
  *   arb <conditionId> [threshold] 套利机会检测
  *   trending [limit]              热门市场列表
+ *   category <slug> [limit]       按分类获取市场（politics/crypto/sports/weather等）
  *   klines <conditionId> <interval> K线数据（YES+NO）
  *   spread <conditionId>          实时 spread 分析
  *
@@ -112,6 +113,35 @@ run(`query-market ${command}`, async () => {
       break;
     }
 
+    case 'category': {
+      const categorySlug = positional[0];
+      if (!categorySlug) {
+        error('query-market category', '缺少分类标识', '用法：tsx scripts/query-market.ts category <slug> [limit]\n可用分类: politics, crypto, sports, pop-culture, science, weather, business, finance');
+        return;
+      }
+      const limit = positional[1] ? parseInt(positional[1], 10) : 20;
+      const markets = await sdk.markets.getMarketsByCategory(categorySlug, {
+        active: true,
+        order: 'volume24hr',
+        ascending: false,
+        limit,
+      });
+      const data = markets.map(m => ({
+        slug: m.slug,
+        question: m.question,
+        volume24hr: m.volume24hr,
+        liquidity: m.liquidity,
+        outcomes: m.outcomes,
+        outcomePrices: m.outcomePrices,
+      }));
+      success(
+        `query-market category ${categorySlug}`,
+        data,
+        `获取到 ${data.length} 个「${categorySlug}」分类的活跃市场`
+      );
+      break;
+    }
+
     case 'klines': {
       const conditionId = positional[0];
       const interval = (positional[1] || '1h') as KLineInterval;
@@ -149,7 +179,7 @@ run(`query-market ${command}`, async () => {
       error(
         'query-market',
         command ? `未知子命令: ${command}` : '缺少子命令',
-        '可用子命令: search, detail, orderbook, arb, trending, klines, spread'
+        '可用子命令: search, detail, orderbook, arb, trending, category, klines, spread'
       );
   }
 });

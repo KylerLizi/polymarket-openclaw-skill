@@ -70,6 +70,7 @@ export type {
   GammaMarket,
   GammaEvent,
   MarketSearchParams,
+  EventSearchParams,
 } from './clients/gamma-api.js';
 
 // ClobApiClient has been removed - use TradingService instead

@@ -289,6 +289,49 @@ export interface MarketSearchParams {
   tag?: string;
 }
 
+/**
+ * Parameters for searching/filtering events
+ */
+export interface EventSearchParams {
+  /**
+   * Filter by event slug
+   */
+  slug?: string;
+
+  /**
+   * Filter by active status
+   */
+  active?: boolean;
+
+  /**
+   * Maximum number of results (default: 100)
+   */
+  limit?: number;
+
+  /**
+   * Offset for pagination
+   */
+  offset?: number;
+
+  /**
+   * Sort field (e.g., "volume24hr", "liquidity", "startDate")
+   */
+  order?: string;
+
+  /**
+   * Sort direction (true = ascending, false = descending)
+   */
+  ascending?: boolean;
+
+  /**
+   * Filter by category tag slug
+   * Available categories: "politics", "crypto", "sports", "pop-culture",
+   * "science", "weather", "business", "finance", etc.
+   * @see https://polymarket.com for full list of categories
+   */
+  tagSlug?: string;
+}
+
 // ===== Client =====
 
 /**
@@ -443,15 +486,15 @@ export class GammaApiClient {
    * const election = await client.getEvents({ slug: '2024-us-election' });
    * ```
    */
-  async getEvents(params?: {
-    slug?: string;
-    active?: boolean;
-    limit?: number;
-  }): Promise<GammaEvent[]> {
+  async getEvents(params?: EventSearchParams): Promise<GammaEvent[]> {
     const query = new URLSearchParams();
     if (params?.slug) query.set('slug', params.slug);
     if (params?.active !== undefined) query.set('active', String(params.active));
     if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.offset) query.set('offset', String(params.offset));
+    if (params?.order) query.set('order', params.order);
+    if (params?.ascending !== undefined) query.set('ascending', String(params.ascending));
+    if (params?.tagSlug) query.set('tag_slug', params.tagSlug);
 
     return this.rateLimiter.execute(ApiType.GAMMA_API, async () => {
       const response = await fetch(`${GAMMA_API_BASE}/events?${query}`);
@@ -508,6 +551,37 @@ export class GammaApiClient {
       }
       const data = (await response.json()) as Record<string, unknown>;
       return this.normalizeEvent(data);
+    });
+  }
+
+  /**
+   * Get events filtered by category
+   *
+   * @param category - Category tag slug (e.g., "politics", "crypto", "sports", "weather")
+   * @param options - Additional filter options
+   * @returns Array of events in the specified category
+   *
+   * @example
+   * ```typescript
+   * // Get active politics events sorted by volume
+   * const politicsEvents = await client.getEventsByCategory('politics', {
+   *   order: 'volume24hr',
+   *   ascending: false,
+   *   limit: 20,
+   * });
+   *
+   * // Get all markets from crypto events
+   * const cryptoEvents = await client.getEventsByCategory('crypto', { limit: 50 });
+   * const cryptoMarkets = cryptoEvents.flatMap(e => e.markets);
+   * ```
+   */
+  async getEventsByCategory(
+    category: string,
+    options?: Omit<EventSearchParams, 'tagSlug'>
+  ): Promise<GammaEvent[]> {
+    return this.getEvents({
+      ...options,
+      tagSlug: category,
     });
   }
 

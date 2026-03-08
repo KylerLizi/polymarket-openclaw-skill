@@ -1082,6 +1082,62 @@ export class MarketService {
   }
 
   /**
+   * Get markets by category
+   *
+   * Fetches events by category tag slug via the Gamma API, then extracts
+   * all markets from those events.
+   *
+   * Available categories: "politics", "crypto", "sports", "pop-culture",
+   * "science", "weather", "business", "finance", etc.
+   *
+   * @param category - Category tag slug
+   * @param options - Additional filter and sort options
+   * @returns Array of GammaMarket from matching events
+   *
+   * @example
+   * ```typescript
+   * // Get active crypto markets sorted by 24h volume
+   * const cryptoMarkets = await sdk.markets.getMarketsByCategory('crypto', {
+   *   active: true,
+   *   order: 'volume24hr',
+   *   ascending: false,
+   *   limit: 50,
+   * });
+   *
+   * // Get weather markets
+   * const weatherMarkets = await sdk.markets.getMarketsByCategory('weather');
+   *
+   * // Get politics markets
+   * const politicsMarkets = await sdk.markets.getMarketsByCategory('politics', {
+   *   active: true,
+   *   limit: 100,
+   * });
+   * ```
+   */
+  async getMarketsByCategory(
+    category: string,
+    options?: {
+      active?: boolean;
+      limit?: number;
+      offset?: number;
+      order?: string;
+      ascending?: boolean;
+    }
+  ): Promise<GammaMarket[]> {
+    if (!this.gammaApi) {
+      throw new PolymarketError(ErrorCode.INVALID_CONFIG, 'GammaApiClient is required for category search');
+    }
+    const events = await this.gammaApi.getEventsByCategory(category, {
+      active: options?.active,
+      limit: options?.limit,
+      offset: options?.offset,
+      order: options?.order,
+      ascending: options?.ascending,
+    });
+    return events.flatMap(e => e.markets);
+  }
+
+  /**
    * Scan for short-term crypto markets (Up/Down markets ending soon)
    *
    * ## Market Types
