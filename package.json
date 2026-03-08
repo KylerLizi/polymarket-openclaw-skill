@@ -1,0 +1,33 @@
+{
+  "name": "polymarket-trader",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Polymarket prediction market trading assistant - OpenClaw Skill",
+  "type": "module",
+  "scripts": {
+    "query-market": "tsx scripts/query-market.ts",
+    "query-wallet": "tsx scripts/query-wallet.ts",
+    "trade": "tsx scripts/trade-execute.ts",
+    "manage": "tsx scripts/manage-account.ts",
+    "analyze": "tsx scripts/analyze-smartmoney.ts",
+    "status": "tsx scripts/status-check.ts"
+  },
+  "dependencies": {
+    "@polymarket/builder-relayer-client": "^0.0.4",
+    "@polymarket/builder-signing-sdk": "^0.0.8",
+    "@polymarket/clob-client": "^5.1.3",
+    "@polymarket/real-time-data-client": "^1.4.0",
+    "viem": "^2.21.0",
+    "@types/ws": "^8.18.1",
+    "bottleneck": "^2.19.5",
+    "ethers": "5",
+    "global-agent": "^3.0.0",
+    "isomorphic-ws": "^5.0.0",
+    "undici": "^6.0.0",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.7.2"
+  }
+}
